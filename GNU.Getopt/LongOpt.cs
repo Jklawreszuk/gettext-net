@@ -81,7 +81,6 @@ namespace GNU.Getopt
         private readonly CultureInfo cultureInfo = CultureInfo.CurrentUICulture;
         #endregion
 
-        #region Constructors
         /// <summary>
         /// Create a new LongOpt object with the given parameter values. If the
         /// value passed as <paramref name="hasArg"/> is not valid, then an
@@ -114,19 +113,8 @@ namespace GNU.Getopt
         public LongOpt(string name, Argument hasArg, StringBuilder flag,
             int val)
         {
-            // Check for application setting "Gnu.PosixlyCorrect" to determine
-            // whether to strictly follow the POSIX standard. This replaces the
-            // "POSIXLY_CORRECT" environment variable in the C version
-            // By default it follows POSIX standard.
-            bool isPosixlyCorrect = true;
-            try
-            {
-                isPosixlyCorrect = (bool)new AppSettingsReader().GetValue(
-                    "Gnu.PosixlyCorrect", typeof(bool));
-            }
-            catch{
-                Console.WriteLine("Warning: app.config not found!");
-            }
+            bool isPosixlyCorrect = TryGetIsPosixlyCorrect();
+        
             if(isPosixlyCorrect)
             {
                 cultureInfo = new CultureInfo("en-US");
@@ -148,7 +136,24 @@ namespace GNU.Getopt
             this.flag = flag;
             this.val = val;
         }
-        #endregion
+
+        /// <summary>
+        /// Check for application setting "Gnu.PosixlyCorrect" to determine
+        /// whether to strictly follow the POSIX standard. This replaces the
+        /// "POSIXLY_CORRECT" environment variable in the C version
+        /// If failed to retrieve, it follows POSIX standard.
+        /// </summary>
+        private bool TryGetIsPosixlyCorrect()
+        {
+            try
+            {
+                return (bool)new AppSettingsReader().GetValue(
+                    "Gnu.PosixlyCorrect", typeof(bool));
+            }
+            catch{
+                return true;
+            }
+        }
 
         /// <summary>
         /// Returns the name of this LongOpt as a string
