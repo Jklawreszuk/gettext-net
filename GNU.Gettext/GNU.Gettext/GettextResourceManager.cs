@@ -152,7 +152,7 @@ namespace GNU.Gettext
             // Try to load embedded assembly
             string embeddedResourceId = string.Format("{0}.{1}.{2}",
                 assembly.GetName().Name, culture.Name, GetSatelliteAssemblyName(resourceName));
-            Stream satAssemblyStream = null;
+            Stream satAssemblyStream;
             using (satAssemblyStream = assembly.GetManifestResourceStream(embeddedResourceId))
             {
                 if (satAssemblyStream == null)
@@ -179,7 +179,7 @@ namespace GNU.Gettext
         /// </summary>
         /// <returns>a nonempty string consisting of alphanumerics and underscores
         ///          and starting with a letter or underscore</returns>
-        private static String ConstructClassName(string resourceName)
+        private static string ConstructClassName(string resourceName)
         {
             // We could just return an arbitrary fixed class name, like "Messages",
             // assuming that every assembly will only ever contain one
@@ -244,10 +244,10 @@ namespace GNU.Gettext
         public static string ExtractClassName(string baseName)
         {
             if (string.IsNullOrEmpty(baseName))
-                throw new Exception("Empty base name");
+                throw new ArgumentException("Empty base name");
             int pos = baseName.LastIndexOf('.');
             if (pos == baseName.Length - 1)
-                throw new Exception("Invalid base name");
+                throw new ArgumentException("Invalid base name");
             if (pos != -1)
                 return baseName.Substring(pos + 1);
             return baseName;
@@ -298,10 +298,11 @@ namespace GNU.Gettext
             return ConstructClassName(resourceName) + "_" + culture.Name.Replace('-', '_');
         }
 
-        private static GettextResourceSet[] EmptyResourceSetArray = new GettextResourceSet[0];
+        private static readonly GettextResourceSet[] EmptyResourceSetArray = Array.Empty<GettextResourceSet>();
 
         // Cache for already loaded GettextResourceSet cascades.
-        private Hashtable /* CultureInfo -> GettextResourceSet[] */ Loaded = new Hashtable();
+        /* CultureInfo -> GettextResourceSet[] */
+        private readonly Hashtable Loaded = new Hashtable();
 
         /// <summary>
         /// Returns the array of <c>GettextResourceSet</c>s for a given culture,
@@ -309,7 +310,6 @@ namespace GNU.Gettext
         /// </summary>
         private GettextResourceSet[] GetResourceSetsFor(CultureInfo culture)
         {
-            //Console.WriteLine(">> GetResourceSetsFor "+culture);
             // Look up in the cache.
             if (Loaded[culture] is not GettextResourceSet[] result)
             {
@@ -368,19 +368,8 @@ namespace GNU.Gettext
                     }
                 }
             }
-            //Console.WriteLine("<< GetResourceSetsFor "+culture);
             return result;
         }
-
-        /*
-        /// <summary>
-        /// Releases all loaded <c>GettextResourceSet</c>s and their assemblies.
-        /// </summary>
-        // TODO: No way to release an Assembly?
-        public override void ReleaseAllResources () {
-          ...
-        }
-        */
 
         /// <summary>
         /// Returns the translation of <paramref name="msgid"/> in a given culture.
@@ -442,7 +431,7 @@ namespace GNU.Gettext
         ///                     string</param>
         /// <returns>the translation of <paramref name="msgid"/>, or
         ///          <paramref name="msgid"/> if none is found</returns>
-        public String GetParticularString(string msgctxt, String msgid, CultureInfo culture)
+        public string GetParticularString(string msgctxt, string msgid, CultureInfo culture)
         {
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
@@ -473,7 +462,7 @@ namespace GNU.Gettext
         /// <param name="n">the number, should be &gt;= 0</param>
         /// <returns>the translation, or <paramref name="msgid"/> or
         ///          <paramref name="msgidPlural"/> if none is found</returns>
-        public virtual string GetParticularPluralString(string msgctxt, string msgid, String msgidPlural, long n, CultureInfo culture)
+        public virtual string GetParticularPluralString(string msgctxt, string msgid, string msgidPlural, long n, CultureInfo culture)
         {
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
@@ -527,7 +516,7 @@ namespace GNU.Gettext
         /// <param name="n">the number, should be &gt;= 0</param>
         /// <returns>the translation, or <paramref name="msgid"/> or
         ///          <paramref name="msgidPlural"/> if none is found</returns>
-        public virtual String GetPluralString(string msgid, String msgidPlural, long n)
+        public virtual string GetPluralString(string msgid, string msgidPlural, long n)
         {
             return GetPluralString(msgid, msgidPlural, n, CultureInfo.CurrentUICulture);
         }
@@ -559,7 +548,7 @@ namespace GNU.Gettext
         ///                     string</param>
         /// <returns>the translation of <paramref name="msgid"/>, or
         ///          <paramref name="msgid"/> if none is found</returns>
-        public String GetParticularString(String msgctxt, string msgid)
+        public string GetParticularString(string msgctxt, string msgid)
         {
             return GetParticularString(msgctxt, msgid, CultureInfo.CurrentUICulture);
         }
@@ -579,7 +568,7 @@ namespace GNU.Gettext
         /// <param name="n">the number, should be &gt;= 0</param>
         /// <returns>the translation, or <paramref name="msgid"/> or
         ///          <paramref name="msgidPlural"/> if none is found</returns>
-        public virtual String GetParticularPluralString(String msgctxt, string msgid, String msgidPlural, long n)
+        public virtual string GetParticularPluralString(string msgctxt, string msgid, string msgidPlural, long n)
         {
             return GetParticularPluralString(msgctxt, msgid, msgidPlural, n, CultureInfo.CurrentUICulture);
         }

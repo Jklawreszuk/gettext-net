@@ -181,7 +181,7 @@ namespace GNU.Gettext
         ///                           an ASCII string</param>
         /// <param name="n">the number, should be &gt;= 0</param>
         /// <returns>the translation, or <c>null</c> if none is found</returns>
-        public virtual string GetPluralString(string msgid, String msgidPlural, long n)
+        public virtual string GetPluralString(string msgid, string msgidPlural, long n)
         {
             object value = GetObject(msgid);
             if (value == null || value is string)
